@@ -1,0 +1,42 @@
+.editProfileForm {
+    background-color: #ffffff99;
+
+    .editProfile__wrapper {
+        padding: 16px;
+        border-radius: 8px;
+    }
+
+    .editProfile__button--wrapper {
+        position: fixed;
+        bottom: 20px;
+        width: 84%;
+        z-index: 999;
+        margin-left: 8%;
+
+        .zaui-btn {
+            font-size: 15px;
+            font-weight: 700;
+            line-height: 20px;
+            text-align: center;
+        }
+
+        .editProfile__button--top {
+            flex: 1;
+            // background-color: white;
+            // border: 1px solid blue;
+            // color: blue;
+            margin-right: 4px;
+        }
+
+        .editProfile__button--bottom {
+            flex: 1;
+            // background-color: ;
+            color: white;
+            margin-left: 4px;
+        }
+    }
+
+    .label__required {
+        // color: rgba(220, 31, 24, 1);
+    }
+}
