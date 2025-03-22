@@ -121,7 +121,38 @@ const CardForm = () => {
     navigate(ROUTE_PATH.PROFILE.path, { replace: ROUTE_PATH.PROFILE.replace });
   };
 
-  const onClickSave = (data) => {
+  const onClickSave = async (data) => {
+    const blob = await getBlobFromUrl(avatar); // Lấy Blob từ URL
+
+    const file = new File([blob], "upload.jpg", {
+      type: blob.type, // Đảm bảo có type (ví dụ: "image/jpeg")
+    });
+    const formData = new FormData();
+    const refId = card.id?.toString();
+    formData.append("files", file); // Đặt tên file tùy ý
+    formData.append("ref", "api::card.card"); // The reference type for Food collection
+    formData.append("refId", refId || ""); // The ID of the food entry
+    formData.append("field", "avatar");
+
+    const res = await uploadMultipleOrSingleAction(formData);
+    if (res.uploadSuccess) {
+      console.log("upload success");
+    } else {
+      useModalStore.setState({
+        modal: {
+          title: "Lỗi chọn ảnh",
+          description: "Có lỗi trong quá trình chọn ảnh, vui lòng thử lại sau",
+          confirmButton: {
+            text: "Xác nhận",
+            onClick: () => {},
+          },
+          closeOnConfirm: true,
+          closeOnCancel: true,
+          dismissible: true,
+        },
+      });
+    }
+
     let socials: { name: string; url: string }[] = [];
     Object.entries(socialList).map(([key, value]) => {
       if (value.url) {
@@ -157,12 +188,8 @@ const CardForm = () => {
             </div>
             <div className="w-14 h-14 rounded-full overflow-hidden border border-slate-300">
               <img
-                src={
-                  //   `${env.VITE_WEB_URL_API}${card?.avatar?.url}` ||
-                  //   user?.avatar ||
-                  avatar
-                }
-                alt="loi hien thi anh"
+                src={`${env.VITE_WEB_URL_API}${card?.avatar?.url}` || avatar}
+                alt="avatar"
                 className="w-full object-cover"
               />
             </div>
@@ -179,40 +206,6 @@ const CardForm = () => {
                     const imageUrl = result.tempFiles[0].path;
                     console.log("Đường dẫn ảnh:", imageUrl);
                     setAvatar(imageUrl);
-                    // Fetch Blob từ URL
-                    const blob = await getBlobFromUrl(imageUrl); // Lấy Blob từ URL
-
-                    console.log("blob", blob);
-                    const file = new File([blob], "upload.jpg", {
-                      type: blob.type, // Đảm bảo có type (ví dụ: "image/jpeg")
-                    });
-                    console.log("file", file);
-                    const formData = new FormData();
-                    formData.append("files", file); // Đặt tên file tùy ý
-
-                    // 3. Tạo FormData
-
-                    console.log("FormData kiểm tra:", formData.getAll("files"));
-                    // const response = await fetch(
-                    //   `${env.VITE_WEB_URL_API}/api/upload`,
-                    //   {
-                    //     method: "POST",
-                    //     body: formData, // Không đặt headers!
-                    //   }
-                    // );
-
-                    const formDataJSON = {};
-                    formData.forEach((value, key) => {
-                      formDataJSON[key] = value;
-                    });
-                    console.log("📌 FormData JSON:", formDataJSON);
-
-                    const res = await uploadMultipleOrSingleAction(formData);
-                    if (res.uploadSuccess) {
-                      console.log("upload success");
-                    } else {
-                      console.log("upload fail");
-                    }
                   }
                 } catch (error) {
                   useModalStore.setState({
@@ -220,7 +213,12 @@ const CardForm = () => {
                       title: "Lỗi chọn ảnh",
                       description:
                         "Có lỗi trong quá trình chọn ảnh, vui lòng thử lại sau",
-                      confirmButton: { text: "Xác nhận", onClick: () => {} },
+                      confirmButton: {
+                        text: "Xác nhận",
+                        onClick: () => {
+                          return;
+                        },
+                      },
                       closeOnConfirm: true,
                       closeOnCancel: true,
                       dismissible: true,

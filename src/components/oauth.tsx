@@ -113,6 +113,8 @@ const Oauth = () => {
         id: userTokens.cmsId.toString(),
         ZaloIdByApp: userTokens.ZaloIdByApp,
         phoneNumber: userTokens.phoneNumber,
+        name: userInfo.name,
+        avatar: userInfo.avatar,
         userIsAuthorization: false,
         UserRequestFollowOA: false,
         userStatus: status,

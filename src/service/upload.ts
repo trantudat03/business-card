@@ -3,31 +3,23 @@ import request from "utils/request";
 
 export async function uploadMultipleOrSingleAction(formData: FormData) {
   try {
-    // const response = await fetch(`${env.VITE_WEB_URL_API}/api/upload`, {
-    //   method: "post",
-    //   body: formData,
-    // });
     const response = await request.post(
       `${env.VITE_WEB_URL_API}/api/upload`,
-      formData
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        timeout: 120000,
+      }
     );
-
-    const result = await response;
-
-    if (result) {
-      console.log(result);
-      //   return {
-      //     uploadError: "error",
-      //     uploadSuccess: null,
-      //   };
-    }
 
     return {
       uploadError: null,
       uploadSuccess: "Images uploaded successfully",
     };
   } catch (error: any) {
-    console.log(error);
+    console.log(error.message);
     return {
       uploadError: error.message,
       uploadSuccess: null,
