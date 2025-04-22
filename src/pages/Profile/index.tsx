@@ -4,7 +4,7 @@ import { useRecoilValue } from "recoil";
 import { cardState, userState } from "state";
 import { Box, Button, Header, Icon, Page } from "zmp-ui";
 import "./styles.scss";
-import { generatePath, useLocation, useNavigate } from "react-router-dom";
+import { generatePath, useNavigate } from "react-router-dom";
 import { ROUTE_PATH } from "utils/constant";
 const Profile = () => {
   const user = useRecoilValue(userState);

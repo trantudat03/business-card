@@ -26,7 +26,7 @@ const processQueue = (error, token = null) => {
 };
 
 const request = axios.create({
-  timeout: 15 * 1000,
+  timeout: 30 * 1000,
   headers: {
     "Content-Type": "application/json",
   },
