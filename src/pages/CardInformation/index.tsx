@@ -17,6 +17,7 @@ import QRCodeItem from "components/QRCodeItem";
 import { openShareSheet } from "zmp-sdk";
 import { handCreateLinkCardInfo } from "utils/link";
 import * as hooks from "hooks";
+import CMSImage from "components/cmsImage";
 
 const CardInformation = () => {
   // kiểm tra và gọi api lấy card của cardId luôn
@@ -100,23 +101,21 @@ const CardInformation = () => {
       >
         {cardInfo?.documentId && (
           <div className="w-full h-full max-h-[700px] p-8 flex flex-col items-center">
-            <div className="mb-4 ">
-              {cardInfo?.avatar?.url || user?.avatar !== "" ? (
+            <div className="w-32 h-32 rounded-full border-2 border-slate-400 mb-4">
+              {cardInfo?.avatar ? (
                 <img
                   src={
-                    cardInfo?.avatar?.url
-                      ? ` ${env.VITE_WEB_URL_API}${cardInfo?.avatar?.url}`
+                    cardInfo?.avatar
+                      ? `${env.VITE_WEB_URL_API}${cardInfo?.avatar?.url}`
                       : ""
                   }
-                  alt={cardInfo?.name}
-                  className="w-32 h-32 rounded-full object-cover border-4 border-gray-100"
+                  className="w-full h-full object-cover"
                 />
               ) : (
-                <div className="w-32 h-32 rounded-full bg-gray-200 flex items-center justify-center">
-                  <span className="text-4xl text-gray-400">
-                    {cardInfo?.name}
-                  </span>
-                </div>
+                <CMSImage
+                  fieldName="defaultAvatar"
+                  className="w-full h-full object-cover"
+                />
               )}
             </div>
 
@@ -277,15 +276,23 @@ const CardInformation = () => {
           flex
           flexDirection="column"
         >
-          <img
-            src={
-              cardInfo?.avatar?.url
-                ? ` ${env.VITE_WEB_URL_API}${cardInfo?.avatar?.url}`
-                : ""
-            }
-            alt="Avatar"
-            className="w-16 h-16 rounded-full border object-cover"
-          />
+          <div className="w-16 h-16 rounded-full overflow-hidden border border-slate-400">
+            {cardInfo?.avatar ? (
+              <img
+                src={
+                  cardInfo?.avatar
+                    ? `${env.VITE_WEB_URL_API}${cardInfo?.avatar?.url}`
+                    : ""
+                }
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <CMSImage
+                fieldName="defaultAvatar"
+                className="w-full h-full object-cover"
+              />
+            )}
+          </div>
           <h2 className=" text-lg font-semibold">{cardInfo?.name}</h2>
           {/* <p className="text-gray-500">@dat.trantu</p> */}
 
