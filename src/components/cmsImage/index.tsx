@@ -13,7 +13,7 @@ type CMSImageProps = {
 const CMSImage = ({
   fieldName,
   alt = "CMS Image",
-  className,
+  className, 
 }: CMSImageProps) => {
   const { data: imageUrl, isLoading } = useQuery({
     queryKey: ["cmsImage", fieldName],

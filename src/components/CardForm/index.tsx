@@ -96,10 +96,12 @@ const CardForm = () => {
   }, [card]);
 
   useEffect(() => {
+    console.log("chay vao day");
     if (CardUpdate.isSuccess && !CardUpdate.isLoading) {
       setCard((prev) => {
         return { ...prev, ...CardUpdate.data };
       });
+      console.log("chay vao day ne");
       useModalStore.setState({
         modal: {
           title: "Cập nhật thành công",

@@ -1,7 +1,7 @@
 import { Welcome } from "pages/index/welcome";
 import React, { Fragment, useEffect, useRef, useState } from "react"; // Assuming Tailwind is configured here
 import { useRecoilState, useRecoilValue } from "recoil";
-import { contactState, userState } from "state";
+import { cardState, contactState, userState } from "state";
 import { Icon, Input, Page } from "zmp-ui";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { cmsAxios } from "utils/axios";
@@ -16,6 +16,7 @@ import { useModalStore } from "store/modal";
 import NoData from "components/NoData";
 import InfiniteScroll from "components/InfiniteScroll";
 import CMSImage from "components/cmsImage";
+import CardItem from "components/CardItem";
 const fetchContacts = async ({ pageParam = 1, queryKey }) => {
   const [, searchTerm] = queryKey;
   const res = await request(
@@ -29,6 +30,7 @@ const fetchContacts = async ({ pageParam = 1, queryKey }) => {
 };
 const HomeApp = () => {
   const user = useRecoilValue(userState);
+  const card = useRecoilValue(cardState);
   const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
   const {
@@ -71,30 +73,56 @@ const HomeApp = () => {
       <Welcome />
       <div className="p-4 h-full ">
         {/* Search Bar */}
-        <div className="mb-4">
-          <Input
+        <div className=" relative">
+          <input
             type="text"
             placeholder="Tìm kiếm..."
-            className="border-none rounded-full bg-slate-100"
+            className="border-none rounded-full bg-slate-100 py-3 pr-24 pl-10 text-base outline-none w-full"
             onChange={(e) => {
               setSearchTerm(e.target.value);
             }}
           />
+          <div className="absolute left-2 top-2.5">
+            <Icon icon="zi-search" />
+          </div>
+          <div className="absolute right-3 top-2.5 flex gap-5 ">
+            <div>
+              <Icon icon="zi-mic" />
+            </div>
+            <div>
+              <Icon icon="zi-more-vert" />
+            </div>
+          </div>
         </div>
+
+        <div className="items-center w-full justify-center flex my-2">
+          <div className="flex items-center gap-6 text-lg text-slate-600 py-2">
+            <div>
+              <Icon
+                icon="zi-add-user"
+                size={24}
+                style={{
+                  fontWeight: 600,
+                }}
+              />
+            </div>
+            <span>Tạo liên hệ mới</span>
+          </div>
+        </div>
+
+        <CardItem cardInfo={card} isMyCard={true} />
 
         {/* Call Log List */}
         <div>
-          <div className="flex justify-between items-center ">
+          {/* <div className="flex justify-between items-center ">
             <p className="text-base font-medium">Danh sách liên hệ</p>
             <div
-            //   onClick={() => {
-            //     refetch();
-            //   }}
+           
             >
               <Icon icon="zi-retry" className="text-blue-500" />
             </div>
           </div>
-          <div className="w-full h-0.5 bg-slate-200 mx-auto mt-1"></div>
+          <div className="w-full h-0.5 bg-slate-200 mx-auto mt-1"></div> */}
         </div>
         <div className="h-full pb-10">
           <InfiniteScroll
@@ -136,89 +164,8 @@ const HomeApp = () => {
               <div className="mt-6">
                 {data.pages.map((group, i) => (
                   <Fragment key={i}>
-                    {group.data.map((item) => (
-                      <div
-                        key={item?.documentId}
-                        className="w-full bg-white flex gap-2 items-center my-4"
-                        onClick={() => {
-                          navigate(
-                            generatePath(ROUTE_PATH.CARD_INFO.path, {
-                              id: item?.card.documentId,
-                            }),
-                            {
-                              replace: ROUTE_PATH.CARD_INFO.replace,
-                              state: { from: "appHome" },
-                            }
-                          );
-                        }}
-                      >
-                        <div>
-                          <div className="w-14 h-14 rounded-full overflow-hidden">
-                            {item?.card?.avatar ? (
-                              <img
-                                src={
-                                  item?.card?.avatar
-                                    ? `${env.VITE_WEB_URL_API}${item?.card?.avatar?.url}`
-                                    : ""
-                                }
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              <CMSImage
-                                fieldName="defaultAvatar"
-                                className="w-full h-full object-cover"
-                              />
-                            )}
-                          </div>
-                        </div>
-                        <div>
-                          <div className="text-lg font-medium">
-                            {item?.card?.name}
-                          </div>
-                          <div className="text-sm ">
-                            <p>{item?.card?.position}</p>
-                            <p>{item?.card?.company}</p>
-                          </div>
-                        </div>
-                        <div className="flex flex-1 justify-end pr-4 ">
-                          <div
-                            onClick={async (e) => {
-                              e.stopPropagation();
-                              try {
-                                await openChat({
-                                  type: "user",
-                                  id:
-                                    item?.card?.user?.ZaloIdByApp ||
-                                    "khkf2384kjfshk89347",
-                                  message: "",
-                                });
-                              } catch (error) {
-                                useModalStore.setState({
-                                  modal: {
-                                    title: "Lỗi hệ thống",
-                                    description:
-                                      "Xảy ra lỗi vui lòng thử lại sau",
-                                    confirmButton: {
-                                      text: "Xác nhận",
-                                      onClick: () => {},
-                                    },
-                                    closeOnConfirm: true,
-
-                                    closeOnCancel: true,
-                                    dismissible: true,
-                                  },
-                                });
-                              }
-                            }}
-                          >
-                            <Icon
-                              icon="zi-chat"
-                              size={30}
-                              className="font-medium text-blue-500"
-                            />
-                          </div>
-                        </div>
-                      </div>
+                    {group.data.map((item, index) => (
+                      <CardItem cardInfo={item.card} key={index} />
                     ))}
                   </Fragment>
                 ))}
