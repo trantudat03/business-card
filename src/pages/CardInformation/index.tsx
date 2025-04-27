@@ -86,16 +86,24 @@ const CardInformation = () => {
     }
   };
 
+  console.log("card Info", card);
   return (
     <Page className="flex flex-col flex-1 ">
       <Header showBackIcon title="Danh thiếp" />
       <div
-        className="content relative w-full h-full bg-white overflow-y-scroll"
+        className={`content relative w-full h-full overflow-y-scroll`}
         onClick={() => {
           if (showMenu) {
             setShowMenu((prev) => !prev);
           }
           setShowAction((prev) => !prev);
+        }}
+        style={{
+          background: `${cardInfo?.theme ? `url('${env.VITE_WEB_URL_API + cardInfo?.theme?.background?.url}')` : `white`}`,
+          backgroundSize: "cover",
+          backgroundRepeat: "no-repeat",
+          backgroundPosition: "center",
+          width: "100%",
         }}
       >
         {cardInfo?.documentId && (
@@ -109,7 +117,7 @@ const CardInformation = () => {
                       : ""
                   }
                   alt={cardInfo?.name}
-                  className="w-32 h-32 rounded-full object-cover border-4 border-gray-100"
+                  className="w-32 h-32 rounded-full object-cover border-4 border-slate-300"
                 />
               ) : (
                 <div className="w-32 h-32 rounded-full bg-gray-200 flex items-center justify-center">

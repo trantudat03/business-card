@@ -68,6 +68,7 @@ const Oauth = () => {
         CMSRefreshToken: UserInfoCMS?.refreshToken || "",
         phoneNumber: UserInfoCMS.user.phoneNumber,
         card: UserInfoCMS.card,
+        theme_cards: UserInfoCMS.user.theme_cards,
         UserFirstLogin: {
           hasLoggedInBefore: UserInfoCMS?.hasLoggedInBefore,
           isChangePhoneNumber: UserInfoCMS?.isChangePhoneNumber,
@@ -115,6 +116,7 @@ const Oauth = () => {
         phoneNumber: userTokens.phoneNumber,
         name: userInfo.name,
         avatar: userInfo.avatar,
+        themesCard: userTokens.theme_cards,
         userIsAuthorization: false,
         UserRequestFollowOA: false,
         userStatus: status,
@@ -135,6 +137,8 @@ const Oauth = () => {
   }, []);
 
   useEffect(() => {
+    console.log("newUser", user);
+
     if (
       user.id &&
       card.documentId &&

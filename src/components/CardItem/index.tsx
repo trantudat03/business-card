@@ -15,9 +15,6 @@ const CardItem = ({
   isMyCard?: boolean;
 }) => {
   const navigate = useNavigate();
-  if (isMyCard) {
-    console.log("heelo", cardInfo);
-  }
   return (
     <div
       key={cardInfo?.documentId}

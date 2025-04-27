@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { cardState, userState } from "state";
 import { Controller, useForm } from "react-hook-form";
-import { Box, Button, Icon, Input } from "zmp-ui";
+import { Box, Button, Icon, Input, Sheet } from "zmp-ui";
 import { ERROR_MES, ROUTE_PATH } from "utils/constant";
 import "./styles.scss";
 import { useNavigate } from "react-router-dom";
@@ -13,8 +13,14 @@ import { ModalState, useModalStore } from "store/modal";
 import env from "config/app.config";
 import { chooseImage } from "zmp-sdk";
 import defaultAvatar from "assets/images/defaultAvatar.png";
+import themeDefault from "assets/images/theme_default.png";
 import { uploadMultipleOrSingleAction } from "service/upload";
 import zmp from "zmp-sdk";
+import ChooseTheme from "./components/chooseTheme";
+import { TThemeCard } from "types/user";
+import { any } from "lodash/fp";
+import request from "utils/request";
+import { useQuery } from "@tanstack/react-query";
 const socialDefault = {
   facebook: {
     key: "facebook",
@@ -55,6 +61,21 @@ const CardForm = () => {
   const [socialList, setSocialList] = useState(socialDefault);
   const CardUpdate = hooks.usePOSTAPICardUpdate();
   const [avatar, setAvatar] = useState(defaultAvatar);
+  const [sheetVisible, setSheetVisible] = useState(false);
+  const [themeCard, setThemeCard] = useState<TThemeCard>(card?.theme);
+
+  const { data: themesDefault, isLoading } = useQuery({
+    queryKey: ["themeDefault"],
+    queryFn: async () => {
+      const res = await request(
+        `${import.meta.env.VITE_WEB_URL_API}/api/app-setting?populate[themes_default][populate]=background`
+      );
+
+      return res.data;
+    },
+  });
+
+  console.log(card);
 
   const {
     control,
@@ -175,13 +196,36 @@ const CardForm = () => {
       slogan: data.slogan || "",
       socialMedia: socials,
       id: card.id,
+      themeID: themeCard?.documentId || "",
     };
     CardUpdate.post(params);
   };
 
   return (
     <div className="editProfileForm pb-24">
-      <Box className="editProfile__wrapper ">
+      <Box className="editProfile__wrapper relative">
+        <div className="chooseTheme fixed right-4 top-32 bg-black bg-opacity-40 p-2 z-10 rounded-full flex items-center gap-2">
+          <span className="text-white text-sm">Theme</span>
+          <div
+            className="w-10 h-10 rounded-full  overflow-hidden border border-slate-300"
+            onClick={() => setSheetVisible(true)}
+          >
+            <img
+              //   src={
+              //     card?.theme
+              //       ? `${env.VITE_WEB_URL_API + card?.theme?.background?.url}`
+              //       : themeDefault
+              //   }
+              src={
+                themeCard
+                  ? `${env.VITE_WEB_URL_API + themeCard.background?.url}`
+                  : themeDefault
+              }
+              alt="avatar"
+              className="w-full object-cover"
+            />
+          </div>
+        </div>
         <Box mb={6} className="flex flex-row items-center gap-5">
           <div className="flex flex-row items-center gap-4">
             <div className="zaui-input-label">
@@ -436,6 +480,139 @@ const CardForm = () => {
           Hoàn tất
         </button>
       </Box>
+      <Sheet
+        visible={sheetVisible}
+        onClose={() => {
+          setSheetVisible(false);
+        }}
+        autoHeight
+        mask
+        handler
+        swipeToClose
+        title="Choose theme"
+        height={500}
+      >
+        <div className="custom-bottom-sheet flex flex-col items-start p-6 gap-4 ">
+          {/* <ChooseTheme themeCard={themeCard} /> */}
+          <div className="flex flex-col gap-6">
+            {themeCard ? (
+              <div className="min-h-52">
+                <div className="theme_info flex gap-6">
+                  <div className={`w-24 h-40 `}>
+                    <img
+                      src={`${env.VITE_WEB_URL_API + themeCard?.background?.url}`}
+                      alt="themeIMG"
+                      className="w-full object-cover border-2 border-slate-400"
+                    />
+                  </div>
+                  <div>
+                    <div className="">
+                      <span className="font-medium text-lg mr-1">Theme: </span>
+                      <span className="font-normal text-base capitalize">
+                        {themeCard?.name}
+                      </span>
+                    </div>
+                    <div className="">
+                      <span className="font-medium text-lg mr-1">
+                        Information:{" "}
+                      </span>
+                      <span className="font-normal text-base capitalize">
+                        {themeCard?.description}
+                      </span>
+                    </div>
+                    <div className="">
+                      <span className="font-medium text-lg mr-1">Layout: </span>
+                      <span className="font-normal text-base capitalize">
+                        {themeCard?.layout}
+                      </span>
+                    </div>
+                    <div className="">
+                      <span className="font-medium text-lg mr-1">Status: </span>
+                      <span className="font-normal text-base capitalize">
+                        {themeCard?.statusThemes}
+                      </span>
+                    </div>
+                    <div className="">
+                      <span className="font-medium text-lg mr-1">
+                        Text color:{" "}
+                      </span>
+                      <span className="font-normal text-base capitalize">
+                        {themeCard?.textColor}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  onClick={() => {}}
+                  className="shadow-md float-right mt-3 bg-blue-600 text-white py-2 px-4 rounded-full text-base font-medium inline-block "
+                >
+                  Preview
+                </div>
+              </div>
+            ) : (
+              <div></div>
+            )}
+            <div>
+              <div className="flex flex-col gap-2 mb-2">
+                <h3 className="text-lg font-semibold">Theme Default</h3>
+                <div className="flex gap-4">
+                  {themesDefault?.themes_default?.length > 0 ? (
+                    themesDefault?.themes_default?.map((item, i) => {
+                      console.log(item);
+
+                      return (
+                        <div
+                          className={`w-12 h-12 rounded-full  overflow-hidden ${themeCard?.documentId === item?.documentId ? `border-[3px] border-blue-600 ` : `border border-slate-300`}`}
+                          onClick={() => {
+                            setThemeCard(item);
+                          }}
+                          key={i}
+                        >
+                          <img
+                            src={`${env.VITE_WEB_URL_API + item?.background?.url}`}
+                            alt="themeIMG"
+                            className="w-full object-cover"
+                          />
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <div>Don't have theme default</div>
+                  )}
+                </div>
+              </div>
+              <div className="flex flex-col gap-2">
+                <h3 className="text-lg font-semibold">Theme List</h3>
+                <div className="flex gap-4">
+                  {user?.themesCard?.length > 0 ? (
+                    user?.themesCard.map((item, i) => {
+                      console.log(item);
+
+                      return (
+                        <div
+                          className={`w-12 h-12 rounded-full  overflow-hidden ${themeCard?.documentId === item?.documentId ? `border-[3px] border-blue-600 ` : `border border-slate-300`}`}
+                          onClick={() => {
+                            setThemeCard(item);
+                          }}
+                          key={i}
+                        >
+                          <img
+                            src={`${env.VITE_WEB_URL_API + item?.background?.url}`}
+                            alt="themeIMG"
+                            className="w-full object-cover"
+                          />
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <div>You don't have theme</div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Sheet>
     </div>
   );
 };

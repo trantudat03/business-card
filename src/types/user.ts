@@ -18,6 +18,20 @@ export type UserTokens = {
   cmsRefreshToken?: string;
 };
 
+export type TThemeCard = {
+  id: string;
+  documentId: string;
+  name?: string;
+  background?: {
+    url: string;
+  };
+  description?: string;
+  layout?: string;
+  price?: string;
+  statusThemes?: string;
+  textColor?: string;
+};
+
 export interface TUser {
   referralCode: string;
   avatar: string;
@@ -30,6 +44,7 @@ export interface TUser {
   actionZalo: "accept" | "reject" | "";
   shouldUpdate: boolean;
   ZaloIdByApp: string;
+  themesCard: TThemeCard[];
 }
 
 export interface TCard {
@@ -41,6 +56,7 @@ export interface TCard {
   phone: string;
   email: string;
   slogan?: string;
+  theme: TThemeCard;
   socialMedia: TSocialMedia[]; // Component repeatable
   avatar?: {
     url: string;
