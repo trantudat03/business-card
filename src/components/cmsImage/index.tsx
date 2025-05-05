@@ -3,6 +3,7 @@ import env from "config/app.config";
 import React from "react";
 import { cmsAxios } from "utils/axios";
 import request from "utils/request";
+import defaultImage from "assets/images/defaultAvatar.png";
 
 type CMSImageProps = {
   fieldName: string;
@@ -13,9 +14,13 @@ type CMSImageProps = {
 const CMSImage = ({
   fieldName,
   alt = "CMS Image",
-  className, 
+  className,
 }: CMSImageProps) => {
-  const { data: imageUrl, isLoading } = useQuery({
+  const {
+    data: imageUrl,
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ["cmsImage", fieldName],
     queryFn: async () => {
       const res = await request(
@@ -28,6 +33,10 @@ const CMSImage = ({
 
   if (isLoading) {
     return null;
+  }
+
+  if (isError) {
+    return <img src={defaultImage} alt={alt} className={className} />;
   }
 
   return (

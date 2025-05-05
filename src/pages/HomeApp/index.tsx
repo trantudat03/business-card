@@ -113,17 +113,7 @@ const HomeApp = () => {
         <CardItem cardInfo={card} isMyCard={true} />
 
         {/* Call Log List */}
-        <div>
-          {/* <div className="flex justify-between items-center ">
-            <p className="text-base font-medium">Danh sách liên hệ</p>
-            <div
-           
-            >
-              <Icon icon="zi-retry" className="text-blue-500" />
-            </div>
-          </div>
-          <div className="w-full h-0.5 bg-slate-200 mx-auto mt-1"></div> */}
-        </div>
+        <div></div>
         <div className="h-full pb-10">
           <InfiniteScroll
             load={fetchNextPage}
