@@ -30,7 +30,7 @@ const CardInformation = () => {
   const [showMenu, setShowMenu] = useState(false);
   const useDeleteContact = hooks.useDeleteContact();
   const useCreateContact = hooks.useCreateContact();
-  const isMyCard = location?.state?.from === "profile";
+  //   const isMyCard = location?.state?.from === "profile";
 
   const { data, isPending, refetch } = useQuery({
     queryKey: ["getCardById", id],
@@ -50,18 +50,22 @@ const CardInformation = () => {
         console.log(error);
       }
     },
-    enabled: !!id && !isMyCard && !!user?.userTokens?.cmsAccessToken,
+    // enabled: !!id, //&& !isMyCard && !!user?.userTokens?.cmsAccessToken,
   });
 
   useEffect(() => {
     if (data) {
       setCardInfo(data);
-    } else {
-      if (isMyCard) {
-        setCardInfo(card);
-      }
     }
-  }, [data, isMyCard]);
+  }, [data]);
+
+  //   useEffect(() => {
+  //     //   if (data) {
+  //     //     setCardInfo(data);
+  //     //   }
+  //     if (id === card?.documentId) refetch();
+  //     console.log("kshdkfhsdk");
+  //   }, [card]);
 
   const handReturnValue = (text: string) => {
     if (text) {
@@ -99,8 +103,8 @@ const CardInformation = () => {
           setShowAction((prev) => !prev);
         }}
         style={{
-          background: `${cardInfo?.theme ? `url('${env.VITE_WEB_URL_API + cardInfo?.theme?.background?.url}')` : `white`}`,
-          backgroundSize: "cover",
+          backgroundImage: `${cardInfo?.theme ? `url('${env.VITE_WEB_URL_API + cardInfo?.theme?.background?.url}')` : `white`}`,
+          backgroundSize: "contain",
           backgroundRepeat: "no-repeat",
           backgroundPosition: "center",
           width: "100%",

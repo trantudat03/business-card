@@ -16,11 +16,11 @@ import defaultAvatar from "assets/images/defaultAvatar.png";
 import themeDefault from "assets/images/theme_default.png";
 import { uploadMultipleOrSingleAction } from "service/upload";
 import zmp from "zmp-sdk";
-import ChooseTheme from "./components/chooseTheme";
 import { TThemeCard } from "types/user";
 import { any } from "lodash/fp";
 import request from "utils/request";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+
 const socialDefault = {
   facebook: {
     key: "facebook",
@@ -63,6 +63,7 @@ const CardForm = () => {
   const [avatar, setAvatar] = useState(defaultAvatar);
   const [sheetVisible, setSheetVisible] = useState(false);
   const [themeCard, setThemeCard] = useState<TThemeCard>(card?.theme);
+  const queryClient = useQueryClient();
 
   const { data: themesDefault, isLoading } = useQuery({
     queryKey: ["themeDefault"],
@@ -117,12 +118,16 @@ const CardForm = () => {
   }, [card]);
 
   useEffect(() => {
-    console.log("chay vao day");
-    if (CardUpdate.isSuccess && !CardUpdate.isLoading) {
+    // console.log("chay vao day");
+    if (CardUpdate.isSuccess) {
       setCard((prev) => {
         return { ...prev, ...CardUpdate.data };
       });
-      console.log("chay vao day ne");
+      //   console.log("chay vao day ne");
+      queryClient.invalidateQueries({
+        queryKey: ["getCardById", card.documentId],
+      });
+
       useModalStore.setState({
         modal: {
           title: "Cập nhật thành công",
