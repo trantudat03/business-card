@@ -1,3 +1,4 @@
+import { string } from "prop-types";
 import { atom, selector } from "recoil";
 import { TApp } from "types/common";
 import { TSetting } from "types/setting";
@@ -23,6 +24,7 @@ export const userState = atom<TUser>({
     isLoading: false,
     actionZalo: "",
     shouldUpdate: false,
+    themesCard: [],
   },
 });
 
@@ -45,6 +47,7 @@ export const cardState = atom<TCard>({
       username: "",
     }, // Để đúng kiểu object { id, username, email }
     contacts: [], // Danh sách contacts theo TContact[]
+    theme: { documentId: "", id: "" },
   },
 });
 
