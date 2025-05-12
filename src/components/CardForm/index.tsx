@@ -1,23 +1,21 @@
 import React, { useEffect, useState } from "react";
-import { useRecoilState, useRecoilValue } from "recoil";
-import { cardState, userState } from "state";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
+import { appState, cardState, userState } from "state";
 import { Controller, useForm } from "react-hook-form";
-import { Box, Button, Icon, Input, Sheet } from "zmp-ui";
+import { Box, Icon, Input, Sheet } from "zmp-ui";
 import { ERROR_MES, ROUTE_PATH } from "utils/constant";
 import "./styles.scss";
 import { useNavigate } from "react-router-dom";
 import { FaFacebook, FaTelegram, FaTiktok } from "react-icons/fa";
 import { FaEarthAsia } from "react-icons/fa6";
 import * as hooks from "hooks";
-import { ModalState, useModalStore } from "store/modal";
+import { useModalStore } from "store/modal";
 import env from "config/app.config";
 import { chooseImage } from "zmp-sdk";
 import defaultAvatar from "assets/images/defaultAvatar.png";
 import themeDefault from "assets/images/theme_default.png";
 import { uploadMultipleOrSingleAction } from "service/upload";
-import zmp from "zmp-sdk";
 import { TThemeCard } from "types/user";
-import { any } from "lodash/fp";
 import request from "utils/request";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -60,10 +58,11 @@ const CardForm = () => {
   const [socialFocus, setSocialFocus] = useState(socialDefault.facebook);
   const [socialList, setSocialList] = useState(socialDefault);
   const CardUpdate = hooks.usePOSTAPICardUpdate();
-  const [avatar, setAvatar] = useState(defaultAvatar);
+  const [avatar, setAvatar] = useState(card?.avatar?.url || defaultAvatar);
   const [sheetVisible, setSheetVisible] = useState(false);
   const [themeCard, setThemeCard] = useState<TThemeCard>(card?.theme);
   const queryClient = useQueryClient();
+  const setGlobal = useSetRecoilState(appState);
 
   const { data: themesDefault, isLoading } = useQuery({
     queryKey: ["themeDefault"],
@@ -75,8 +74,6 @@ const CardForm = () => {
       return res.data;
     },
   });
-
-  console.log(card);
 
   const {
     control,
@@ -118,12 +115,11 @@ const CardForm = () => {
   }, [card]);
 
   useEffect(() => {
-    // console.log("chay vao day");
     if (CardUpdate.isSuccess) {
       setCard((prev) => {
         return { ...prev, ...CardUpdate.data };
       });
-      //   console.log("chay vao day ne");
+
       queryClient.invalidateQueries({
         queryKey: ["getCardById", card.documentId],
       });
@@ -150,35 +146,38 @@ const CardForm = () => {
   };
 
   const onClickSave = async (data) => {
-    const blob = await getBlobFromUrl(avatar); // Lấy Blob từ URL
+    setGlobal((prev) => ({ ...prev, isLoading: true }));
+    if (avatar !== card?.avatar?.url) {
+      const blob = await getBlobFromUrl(avatar); // Lấy Blob từ URL
 
-    const file = new File([blob], "upload.jpg", {
-      type: blob.type, // Đảm bảo có type (ví dụ: "image/jpeg")
-    });
-    const formData = new FormData();
-    const refId = card.id?.toString();
-    formData.append("files", file); // Đặt tên file tùy ý
-    formData.append("ref", "api::card.card"); // The reference type for Food collection
-    formData.append("refId", refId || ""); // The ID of the food entry
-    formData.append("field", "avatar");
-
-    const res = await uploadMultipleOrSingleAction(formData);
-    if (res.uploadSuccess) {
-      console.log("upload success");
-    } else {
-      useModalStore.setState({
-        modal: {
-          title: "Lỗi chọn ảnh",
-          description: "Có lỗi trong quá trình chọn ảnh, vui lòng thử lại sau",
-          confirmButton: {
-            text: "Xác nhận",
-            onClick: () => {},
-          },
-          closeOnConfirm: true,
-          closeOnCancel: true,
-          dismissible: true,
-        },
+      const file = new File([blob], "upload.jpg", {
+        type: blob.type, // Đảm bảo có type (ví dụ: "image/jpeg")
       });
+      const formData = new FormData();
+      const refId = card.id?.toString();
+      formData.append("files", file); // Đặt tên file tùy ý
+      formData.append("ref", "api::card.card"); // The reference type for Food collection
+      formData.append("refId", refId || ""); // The ID of the food entry
+      formData.append("field", "avatar");
+
+      const res = await uploadMultipleOrSingleAction(formData);
+      if (res.uploadSuccess) {
+        setAvatar(res?.data[0]?.url);
+      } else {
+        useModalStore.setState({
+          modal: {
+            title: "Lỗi tải ảnh",
+            description: "Có lỗi trong quá trình tải ảnh, vui lòng thử lại sau",
+            confirmButton: {
+              text: "Xác nhận",
+              onClick: () => {},
+            },
+            closeOnConfirm: true,
+            closeOnCancel: true,
+            dismissible: true,
+          },
+        });
+      }
     }
 
     let socials: { name: string; url: string }[] = [];
@@ -198,12 +197,14 @@ const CardForm = () => {
       company: data?.company || "",
       position: data?.position || "",
       phone: data.phone || "",
+      email: data.email || "",
       slogan: data.slogan || "",
       socialMedia: socials,
       id: card.id,
       themeID: themeCard?.documentId || "",
     };
     CardUpdate.post(params);
+    setGlobal((prev) => ({ ...prev, isLoading: false }));
   };
 
   return (
@@ -216,18 +217,9 @@ const CardForm = () => {
             onClick={() => setSheetVisible(true)}
           >
             <img
-              //   src={
-              //     card?.theme
-              //       ? `${env.VITE_WEB_URL_API + card?.theme?.background?.url}`
-              //       : themeDefault
-              //   }
-              src={
-                themeCard
-                  ? `${env.VITE_WEB_URL_API + themeCard.background?.url}`
-                  : themeDefault
-              }
-              alt="avatar"
-              className="w-full object-cover"
+              src={themeCard ? `${themeCard.background?.url}` : themeDefault}
+              alt="ThemeCard"
+              className="w-full object-cover h-full"
             />
           </div>
         </div>
@@ -239,9 +231,9 @@ const CardForm = () => {
             </div>
             <div className="w-14 h-14 rounded-full overflow-hidden border border-slate-300">
               <img
-                src={`${env.VITE_WEB_URL_API}${card?.avatar?.url}` || avatar}
+                src={avatar}
                 alt="avatar"
-                className="w-full object-cover"
+                className="w-full h-full object-cover"
               />
             </div>
             <div
@@ -252,10 +244,8 @@ const CardForm = () => {
                     count: 1,
                     sourceType: ["album"],
                   });
-                  console.log("result:", result);
                   if (result.tempFiles.length > 0) {
                     const imageUrl = result.tempFiles[0].path;
-                    console.log("Đường dẫn ảnh:", imageUrl);
                     setAvatar(imageUrl);
                   }
                 } catch (error) {
@@ -281,13 +271,6 @@ const CardForm = () => {
               <Icon icon="zi-gallery" size={28} />
             </div>
           </div>
-          {/* <div className="flex flex-row items-center gap-3">
-            <div className="bg-blue-400 text-white p-2 rounded-md">
-              <Icon icon="zi-upload" />
-              <p className="text-sm ">Tải ảnh</p>
-            </div>
-            <div className="bg-">avatar Zalo</div>
-          </div> */}
         </Box>
         <Box mb={6}>
           <div className="zaui-input-label">
@@ -360,12 +343,6 @@ const CardForm = () => {
           <div className="zaui-input-label">Số điện thoại</div>
           <Controller
             control={control}
-            // rules={{
-            //   pattern: {
-            //     value: /^[0-9]{10,11}$/, // Chỉ chấp nhận số, độ dài từ 10-11
-            //     message: "Số điện thoại không hợp lệ",
-            //   },
-            // }}
             render={({ field: { onChange, value }, fieldState }) => (
               <Input
                 type="text"
@@ -386,13 +363,6 @@ const CardForm = () => {
           <div className="zaui-input-label">Email</div>
           <Controller
             control={control}
-            // rules={{
-            //   //   required: ERROR_MES.MAIL_FIELD,
-            //   pattern: {
-            //     value: /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/, // Regex kiểm tra email hợp lệ
-            //     message: ERROR_MES.MAIL_FIELD, // Thông báo lỗi khi sai định dạng
-            //   },
-            // }}
             render={({ field: { onChange, value }, fieldState }) => (
               <Input
                 type="text"
@@ -505,7 +475,7 @@ const CardForm = () => {
                 <div className="theme_info flex gap-6">
                   <div className={`w-24 h-40 `}>
                     <img
-                      src={`${env.VITE_WEB_URL_API + themeCard?.background?.url}`}
+                      src={`${themeCard?.background?.url}`}
                       alt="themeIMG"
                       className="w-full object-cover border-2 border-slate-400"
                     />
@@ -563,8 +533,6 @@ const CardForm = () => {
                 <div className="flex gap-4">
                   {themesDefault?.themes_default?.length > 0 ? (
                     themesDefault?.themes_default?.map((item, i) => {
-                      console.log(item);
-
                       return (
                         <div
                           className={`w-12 h-12 rounded-full  overflow-hidden ${themeCard?.documentId === item?.documentId ? `border-[3px] border-blue-600 ` : `border border-slate-300`}`}
@@ -574,7 +542,7 @@ const CardForm = () => {
                           key={i}
                         >
                           <img
-                            src={`${env.VITE_WEB_URL_API + item?.background?.url}`}
+                            src={`${item?.background?.url}`}
                             alt="themeIMG"
                             className="w-full object-cover"
                           />
@@ -591,8 +559,6 @@ const CardForm = () => {
                 <div className="flex gap-4">
                   {user?.themesCard?.length > 0 ? (
                     user?.themesCard.map((item, i) => {
-                      console.log(item);
-
                       return (
                         <div
                           className={`w-12 h-12 rounded-full  overflow-hidden ${themeCard?.documentId === item?.documentId ? `border-[3px] border-blue-600 ` : `border border-slate-300`}`}
@@ -602,7 +568,7 @@ const CardForm = () => {
                           key={i}
                         >
                           <img
-                            src={`${env.VITE_WEB_URL_API + item?.background?.url}`}
+                            src={`${item?.background?.url}`}
                             alt="themeIMG"
                             className="w-full object-cover"
                           />

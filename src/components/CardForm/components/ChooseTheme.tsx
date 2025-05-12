@@ -17,7 +17,7 @@ const ChooseTheme = ({ themeCard }: { themeCard: any }) => {
           <div className="theme_info flex gap-6">
             <div className={`w-24 h-40 `}>
               <img
-                src={`${env.VITE_WEB_URL_API + themeCard?.background?.url}`}
+                src={`${themeCard?.background?.url}`}
                 alt="themeIMG"
                 className="w-full object-cover border-2 border-slate-400"
               />
@@ -61,39 +61,13 @@ const ChooseTheme = ({ themeCard }: { themeCard: any }) => {
         <div>
           <div className="flex flex-col gap-2 mb-2">
             <h3 className="text-lg font-semibold">Theme Default</h3>
-            <div className="flex gap-4">
-              {/* {themesDefault?.themes_default?.length > 0 ? (
-                themesDefault?.themes_default?.map((item, i) => {
-                  console.log(item);
-
-                  return (
-                    <div
-                      className={`w-12 h-12 rounded-full  overflow-hidden ${themeCard?.documentId === item?.documentId ? `border-[3px] border-blue-600 ` : `border border-slate-300`}`}
-                      onClick={() => {
-                        setThemeCard(item);
-                      }}
-                      key={i}
-                    >
-                      <img
-                        src={`${env.VITE_WEB_URL_API + item?.background?.url}`}
-                        alt="themeIMG"
-                        className="w-full object-cover"
-                      />
-                    </div>
-                  );
-                })
-              ) : (
-                <div>Don't have theme default</div>
-              )} */}
-            </div>
+            <div className="flex gap-4"></div>
           </div>
           <div className="flex flex-col gap-2">
             <h3 className="text-lg font-semibold">Theme List</h3>
             <div className="flex gap-4">
               {user?.themesCard?.length > 0 ? (
                 user?.themesCard.map((item, i) => {
-                  console.log(item);
-
                   return (
                     <div
                       className={`w-12 h-12 rounded-full  overflow-hidden ${themeCard?.documentId === item?.documentId ? `border-[3px] border-blue-600 ` : `border border-slate-300`}`}
@@ -103,7 +77,7 @@ const ChooseTheme = ({ themeCard }: { themeCard: any }) => {
                       key={i}
                     >
                       <img
-                        src={`${env.VITE_WEB_URL_API + item?.background?.url}`}
+                        src={`${item?.background?.url}`}
                         alt="themeIMG"
                         className="w-full object-cover"
                       />

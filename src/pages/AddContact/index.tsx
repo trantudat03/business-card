@@ -50,7 +50,6 @@ const AddContact = () => {
                 });
                 if (result.tempFiles.length > 0) {
                   const imageUrl = result.tempFiles[0].path;
-                  console.log("Đường dẫn ảnh:", imageUrl);
                   QrScanner.scanImage(imageUrl)
                     .then((result) => {
                       navigate(handExtractPath(result) || "/app-home", {

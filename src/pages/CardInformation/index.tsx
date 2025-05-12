@@ -1,7 +1,7 @@
 import env from "config/app.config";
 import React, { useEffect, useState } from "react";
-import { useRecoilValue } from "recoil";
-import { cardState, userState } from "state";
+import { useRecoilValue, useSetRecoilState } from "recoil";
+import { appState, cardState, userState } from "state";
 import { Box, Button, Header, Icon, Page, Select, Sheet, Text } from "zmp-ui";
 import { GoMail } from "react-icons/go";
 import { FaFacebook, FaTelegram, FaTiktok } from "react-icons/fa";
@@ -18,9 +18,9 @@ import { openShareSheet } from "zmp-sdk";
 import { handCreateLinkCardInfo } from "utils/link";
 import * as hooks from "hooks";
 import CMSImage from "components/cmsImage";
+import { useModalStore } from "store/modal";
 
 const CardInformation = () => {
-  // kiểm tra và gọi api lấy card của cardId luôn
   const card = useRecoilValue(cardState);
   const user = useRecoilValue(userState);
   const [cardInfo, setCardInfo] = useState<TCard>({} as TCard);
@@ -31,12 +31,13 @@ const CardInformation = () => {
   const [showMenu, setShowMenu] = useState(false);
   const useDeleteContact = hooks.useDeleteContact();
   const useCreateContact = hooks.useCreateContact();
-  //   const isMyCard = location?.state?.from === "profile";
+  const setGlobal = useSetRecoilState(appState);
 
   const { data, isPending, refetch } = useQuery({
     queryKey: ["getCardById", id],
     queryFn: async () => {
       try {
+        setGlobal((prev) => ({ ...prev, isLoading: true }));
         const res = await request.post(
           `${
             import.meta.env.VITE_WEB_URL_API
@@ -46,6 +47,7 @@ const CardInformation = () => {
             data: id,
           }
         );
+        setGlobal((prev) => ({ ...prev, isLoading: false }));
         return res.data;
       } catch (error) {
         console.log(error);
@@ -59,14 +61,6 @@ const CardInformation = () => {
       setCardInfo(data);
     }
   }, [data]);
-
-  //   useEffect(() => {
-  //     //   if (data) {
-  //     //     setCardInfo(data);
-  //     //   }
-  //     if (id === card?.documentId) refetch();
-  //     console.log("kshdkfhsdk");
-  //   }, [card]);
 
   const handReturnValue = (text: string) => {
     if (text) {
@@ -91,7 +85,6 @@ const CardInformation = () => {
     }
   };
 
-  console.log("card Info", card);
   return (
     <Page className="flex flex-col flex-1 ">
       <Header showBackIcon title="Danh thiếp" />
@@ -104,7 +97,12 @@ const CardInformation = () => {
           setShowAction((prev) => !prev);
         }}
         style={{
-          backgroundImage: `${cardInfo?.theme ? `url('${env.VITE_WEB_URL_API + cardInfo?.theme?.background?.url}')` : `white`}`,
+          backgroundImage: cardInfo?.theme?.background?.url
+            ? `url('${cardInfo.theme.background.url}')`
+            : "none",
+          backgroundColor: cardInfo?.theme?.background?.url
+            ? "transparent"
+            : "white",
           backgroundSize: "contain",
           backgroundRepeat: "no-repeat",
           backgroundPosition: "center",
@@ -113,14 +111,11 @@ const CardInformation = () => {
       >
         {cardInfo?.documentId && (
           <div className="w-full h-full max-h-[700px] p-8 flex flex-col items-center">
-            <div className="w-32 h-32 rounded-full border-2 border-slate-400 mb-4">
+            <div className="w-32 h-32 rounded-full overflow-hidden ring-4 ring-blue-500 mb-4">
               {cardInfo?.avatar ? (
                 <img
-                  src={
-                    cardInfo?.avatar
-                      ? `${env.VITE_WEB_URL_API}${cardInfo?.avatar?.url}`
-                      : ""
-                  }
+                  className="w-full object-cover h-full"
+                  src={cardInfo?.avatar ? `${cardInfo?.avatar?.url}` : ""}
                 />
               ) : (
                 <CMSImage
@@ -131,13 +126,13 @@ const CardInformation = () => {
             </div>
 
             <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-800 mb-1">
+              <h2 className="text-2xl font-bold text-center">
                 {cardInfo?.name}
               </h2>
-              <p className="text-gray-600 font-medium mb-1 text-xl">
+              <p className="text-lg text-blue-600 dark:text-blue-400">
                 {handReturnValue(cardInfo?.position)}
               </p>
-              <div className="infoCardWrap  items-center justify-center text-gray-500 text-base">
+              <div className="infoCardWrap  items-center justify-center text-gray-600 dark:text-gray-300">
                 <BsBuildings size={22} />
                 <span>{handReturnValue(cardInfo?.company)}</span>
               </div>
@@ -151,16 +146,56 @@ const CardInformation = () => {
               </div>
             )}
             {/* Contact Information */}
-            <div className="w-full space-y-3 mb-6">
-              <a
-                className="infoCardWrap text-gray-700 text-base"
-                href={`tel:+${cardInfo?.phone}`}
+            <div className="w-full space-y-3 mb-6 flex flex-col">
+              <button
+                onClick={() => {
+                  if (cardInfo?.phone) {
+                    window.location.href = `tel:+${cardInfo?.phone}`;
+                  } else {
+                    useModalStore.setState({
+                      modal: {
+                        title: "Thông báo",
+                        content: "Người dùng chưa cập nhật số điện thoại",
+                        confirmButton: {
+                          text: "Xác nhận",
+                          onClick: () => {},
+                        },
+                        closeOnConfirm: true,
+                        closeOnCancel: true,
+                        dismissible: true,
+                      },
+                    });
+                  }
+                }}
+                className="w-full flex items-center justify-center space-x-2 p-3 rounded-full bg-gradient-to-r from-[#4ade80] to-[#22c55e] text-white transition-all duration-300 transform active:scale-95"
               >
-                <Icon icon="zi-call" size={28} />
+                <Icon icon="zi-call" size={28} className="animate-pulse" />
                 <span>{handReturnValue(cardInfo?.phone)}</span>
-              </a>
-              <div className="infoCardWrap  text-gray-700 text-base">
-                <GoMail className="font-light" size={24} />
+              </button>
+
+              <div
+                onClick={() => {
+                  if (cardInfo?.email)
+                    window.location.href = `mailto:${cardInfo?.email}`;
+                  else {
+                    useModalStore.setState({
+                      modal: {
+                        title: "Thông báo",
+                        content: "Người dùng chưa cập nhật thông tin Email",
+                        confirmButton: {
+                          text: "Xác nhận",
+                          onClick: () => {},
+                        },
+                        closeOnConfirm: true,
+                        closeOnCancel: true,
+                        dismissible: true,
+                      },
+                    });
+                  }
+                }}
+                className=" flex items-center justify-center space-x-2 p-3 rounded-full bg-gradient-to-r from-blue-400 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-white transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg active:scale-95"
+              >
+                <GoMail className="animate-pulse " size={24} />
                 <span className="break-all">
                   {handReturnValue(cardInfo?.email)}
                 </span>
@@ -290,11 +325,7 @@ const CardInformation = () => {
           <div className="w-16 h-16 rounded-full overflow-hidden border border-slate-400">
             {cardInfo?.avatar ? (
               <img
-                src={
-                  cardInfo?.avatar
-                    ? `${env.VITE_WEB_URL_API}${cardInfo?.avatar?.url}`
-                    : ""
-                }
+                src={cardInfo?.avatar ? `${cardInfo?.avatar?.url}` : ""}
                 className="w-full h-full object-cover"
               />
             ) : (

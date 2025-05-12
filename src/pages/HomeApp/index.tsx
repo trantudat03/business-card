@@ -64,10 +64,6 @@ const HomeApp = () => {
     refetchOnWindowFocus: false,
   });
 
-  if (data) {
-    console.log(data);
-  }
-
   return (
     <Page className="flex flex-col flex-1 bg-white " hideScrollbar>
       <Welcome />
@@ -96,7 +92,14 @@ const HomeApp = () => {
         </div>
 
         <div className="items-center w-full justify-center flex my-2">
-          <div className="flex items-center gap-6 text-lg text-slate-600 py-2">
+          <div
+            className="flex items-center gap-6 text-lg text-slate-600 py-2"
+            onClick={() => {
+              navigate(`${ROUTE_PATH.ADD_CONTACT.path}`, {
+                replace: ROUTE_PATH.ADD_CONTACT.replace,
+              });
+            }}
+          >
             <div>
               <Icon
                 icon="zi-add-user"
@@ -106,7 +109,7 @@ const HomeApp = () => {
                 }}
               />
             </div>
-            <span>Tạo liên hệ mới</span>
+            <span>Thêm liên hệ mới</span>
           </div>
         </div>
 

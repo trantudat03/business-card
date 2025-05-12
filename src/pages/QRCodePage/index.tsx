@@ -15,10 +15,8 @@ const QRCodePage = () => {
   const handCreateLink = (cardId) => {
     // Bước 1: Tạo đường dẫn cơ sở với /card-info:cardId
     let baseUrl = `${env.VITE_ZALO_APP_URL}/card-info/${cardId}`;
-    console.log(location);
     if (location.search) {
       const extraParams = location.search;
-      // Thêm phần tham số vào sau baseUrl
       baseUrl += extraParams;
     }
     return baseUrl;
@@ -27,9 +25,6 @@ const QRCodePage = () => {
   useEffect(() => {
     setLink(handCreateLink(card.documentId));
   }, []);
-  useEffect(() => {
-    console.log(link);
-  }, [link]);
 
   return (
     <Page className="flex flex-col flex-1 bg-white">
@@ -38,9 +33,7 @@ const QRCodePage = () => {
         {card && (
           <img
             src={
-              card?.avatar?.url
-                ? `${env.VITE_WEB_URL_API}${card?.avatar?.url}`
-                : user?.avatar || ""
+              card?.avatar?.url ? `${card?.avatar?.url}` : user?.avatar || ""
             }
             alt="Avatar"
             className="w-20 h-20 rounded-full border"

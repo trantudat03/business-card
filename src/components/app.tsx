@@ -7,6 +7,8 @@ import { ConfigProvider } from "./config-provider";
 import { getConfig } from "utils/config";
 import Oauth from "./oauth";
 import { Layout } from "./layout";
+import DynamicModal from "./DynamicModal";
+import GlobalLoading from "./GlobalLoading";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -34,6 +36,8 @@ const MyApp = () => {
                 <Oauth />
                 <Layout />
               </ZMPRouter>
+              <DynamicModal />
+              <GlobalLoading />
             </SnackbarProvider>
           </QueryClientProvider>
         </App>

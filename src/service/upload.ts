@@ -1,3 +1,4 @@
+import axios from "axios";
 import env from "config/app.config";
 import request from "utils/request";
 
@@ -17,6 +18,27 @@ export async function uploadMultipleOrSingleAction(formData: FormData) {
     return {
       uploadError: null,
       uploadSuccess: "Images uploaded successfully",
+      data: response,
+    };
+  } catch (error: any) {
+    console.log(error.message);
+    return {
+      uploadError: error.message,
+      uploadSuccess: null,
+    };
+  }
+}
+
+export async function uploadImageCloudinary(formData: FormData) {
+  try {
+    const response = await axios.post(`${env.VITE_CLOUDINARY_URL}`, formData, {
+      timeout: 60000,
+    });
+
+    return {
+      uploadError: null,
+      uploadSuccess: "Images uploaded successfully",
+      data: response,
     };
   } catch (error: any) {
     console.log(error.message);
