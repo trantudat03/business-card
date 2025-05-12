@@ -166,9 +166,8 @@ const CardForm = () => {
       } else {
         useModalStore.setState({
           modal: {
-            title: "Lỗi chọn ảnh",
-            description:
-              "Có lỗi trong quá trình chọn ảnh, vui lòng thử lại sau",
+            title: "Lỗi tải ảnh",
+            description: "Có lỗi trong quá trình tải ảnh, vui lòng thử lại sau",
             confirmButton: {
               text: "Xác nhận",
               onClick: () => {},
@@ -198,6 +197,7 @@ const CardForm = () => {
       company: data?.company || "",
       position: data?.position || "",
       phone: data.phone || "",
+      email: data.email || "",
       slogan: data.slogan || "",
       socialMedia: socials,
       id: card.id,

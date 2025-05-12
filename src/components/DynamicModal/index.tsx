@@ -21,7 +21,7 @@ const DynamicModal = () => {
   return (
     <Modal
       visible={isOpen}
-      title={modal?.content ? undefined : modal?.title}
+      title={modal?.title ? modal?.title : "Thông báo"}
       description={modal?.content ? undefined : modal?.description}
       onClose={() => {
         if (modal?.dismissible) {

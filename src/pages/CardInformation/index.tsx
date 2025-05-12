@@ -18,6 +18,7 @@ import { openShareSheet } from "zmp-sdk";
 import { handCreateLinkCardInfo } from "utils/link";
 import * as hooks from "hooks";
 import CMSImage from "components/cmsImage";
+import { useModalStore } from "store/modal";
 
 const CardInformation = () => {
   const card = useRecoilValue(cardState);
@@ -96,7 +97,12 @@ const CardInformation = () => {
           setShowAction((prev) => !prev);
         }}
         style={{
-          backgroundImage: `${cardInfo?.theme ? `url('${cardInfo?.theme?.background?.url}')` : `white`}`,
+          backgroundImage: cardInfo?.theme?.background?.url
+            ? `url('${cardInfo.theme.background.url}')`
+            : "none",
+          backgroundColor: cardInfo?.theme?.background?.url
+            ? "transparent"
+            : "white",
           backgroundSize: "contain",
           backgroundRepeat: "no-repeat",
           backgroundPosition: "center",
@@ -105,7 +111,7 @@ const CardInformation = () => {
       >
         {cardInfo?.documentId && (
           <div className="w-full h-full max-h-[700px] p-8 flex flex-col items-center">
-            <div className="w-32 h-32 rounded-full border-2 overflow-hidden border-slate-400 mb-4">
+            <div className="w-32 h-32 rounded-full overflow-hidden ring-4 ring-blue-500 mb-4">
               {cardInfo?.avatar ? (
                 <img
                   className="w-full object-cover h-full"
@@ -120,13 +126,13 @@ const CardInformation = () => {
             </div>
 
             <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-800 mb-1">
+              <h2 className="text-2xl font-bold text-center">
                 {cardInfo?.name}
               </h2>
-              <p className="text-gray-600 font-medium mb-1 text-xl">
+              <p className="text-lg text-blue-600 dark:text-blue-400">
                 {handReturnValue(cardInfo?.position)}
               </p>
-              <div className="infoCardWrap  items-center justify-center text-gray-500 text-base">
+              <div className="infoCardWrap  items-center justify-center text-gray-600 dark:text-gray-300">
                 <BsBuildings size={22} />
                 <span>{handReturnValue(cardInfo?.company)}</span>
               </div>
@@ -140,16 +146,56 @@ const CardInformation = () => {
               </div>
             )}
             {/* Contact Information */}
-            <div className="w-full space-y-3 mb-6">
-              <a
-                className="infoCardWrap text-gray-700 text-base"
-                href={`tel:+${cardInfo?.phone}`}
+            <div className="w-full space-y-3 mb-6 flex flex-col">
+              <button
+                onClick={() => {
+                  if (cardInfo?.phone) {
+                    window.location.href = `tel:+${cardInfo?.phone}`;
+                  } else {
+                    useModalStore.setState({
+                      modal: {
+                        title: "Thông báo",
+                        content: "Người dùng chưa cập nhật số điện thoại",
+                        confirmButton: {
+                          text: "Xác nhận",
+                          onClick: () => {},
+                        },
+                        closeOnConfirm: true,
+                        closeOnCancel: true,
+                        dismissible: true,
+                      },
+                    });
+                  }
+                }}
+                className="w-full flex items-center justify-center space-x-2 p-3 rounded-full bg-gradient-to-r from-[#4ade80] to-[#22c55e] text-white transition-all duration-300 transform active:scale-95"
               >
-                <Icon icon="zi-call" size={28} />
+                <Icon icon="zi-call" size={28} className="animate-pulse" />
                 <span>{handReturnValue(cardInfo?.phone)}</span>
-              </a>
-              <div className="infoCardWrap  text-gray-700 text-base">
-                <GoMail className="font-light" size={24} />
+              </button>
+
+              <div
+                onClick={() => {
+                  if (cardInfo?.email)
+                    window.location.href = `mailto:${cardInfo?.email}`;
+                  else {
+                    useModalStore.setState({
+                      modal: {
+                        title: "Thông báo",
+                        content: "Người dùng chưa cập nhật thông tin Email",
+                        confirmButton: {
+                          text: "Xác nhận",
+                          onClick: () => {},
+                        },
+                        closeOnConfirm: true,
+                        closeOnCancel: true,
+                        dismissible: true,
+                      },
+                    });
+                  }
+                }}
+                className=" flex items-center justify-center space-x-2 p-3 rounded-full bg-gradient-to-r from-blue-400 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-white transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg active:scale-95"
+              >
+                <GoMail className="animate-pulse " size={24} />
                 <span className="break-all">
                   {handReturnValue(cardInfo?.email)}
                 </span>
