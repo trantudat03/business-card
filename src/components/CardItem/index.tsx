@@ -35,11 +35,7 @@ const CardItem = ({
         <div className="w-14 h-14 rounded-full overflow-hidden">
           {cardInfo?.avatar ? (
             <img
-              src={
-                cardInfo?.avatar
-                  ? `${env.VITE_WEB_URL_API}${cardInfo?.avatar?.url}`
-                  : ""
-              }
+              src={cardInfo?.avatar ? `${cardInfo?.avatar?.url}` : ""}
               className="w-full h-full object-cover"
             />
           ) : (

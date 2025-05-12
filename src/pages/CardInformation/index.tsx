@@ -1,7 +1,7 @@
 import env from "config/app.config";
 import React, { useEffect, useState } from "react";
-import { useRecoilValue } from "recoil";
-import { cardState, userState } from "state";
+import { useRecoilValue, useSetRecoilState } from "recoil";
+import { appState, cardState, userState } from "state";
 import { Box, Button, Header, Icon, Page, Select, Sheet, Text } from "zmp-ui";
 import { GoMail } from "react-icons/go";
 import { FaFacebook, FaTelegram, FaTiktok } from "react-icons/fa";
@@ -20,7 +20,6 @@ import * as hooks from "hooks";
 import CMSImage from "components/cmsImage";
 
 const CardInformation = () => {
-  // kiểm tra và gọi api lấy card của cardId luôn
   const card = useRecoilValue(cardState);
   const user = useRecoilValue(userState);
   const [cardInfo, setCardInfo] = useState<TCard>({} as TCard);
@@ -31,12 +30,13 @@ const CardInformation = () => {
   const [showMenu, setShowMenu] = useState(false);
   const useDeleteContact = hooks.useDeleteContact();
   const useCreateContact = hooks.useCreateContact();
-  //   const isMyCard = location?.state?.from === "profile";
+  const setGlobal = useSetRecoilState(appState);
 
   const { data, isPending, refetch } = useQuery({
     queryKey: ["getCardById", id],
     queryFn: async () => {
       try {
+        setGlobal((prev) => ({ ...prev, isLoading: true }));
         const res = await request.post(
           `${
             import.meta.env.VITE_WEB_URL_API
@@ -46,6 +46,7 @@ const CardInformation = () => {
             data: id,
           }
         );
+        setGlobal((prev) => ({ ...prev, isLoading: false }));
         return res.data;
       } catch (error) {
         console.log(error);
@@ -59,14 +60,6 @@ const CardInformation = () => {
       setCardInfo(data);
     }
   }, [data]);
-
-  //   useEffect(() => {
-  //     //   if (data) {
-  //     //     setCardInfo(data);
-  //     //   }
-  //     if (id === card?.documentId) refetch();
-  //     console.log("kshdkfhsdk");
-  //   }, [card]);
 
   const handReturnValue = (text: string) => {
     if (text) {
@@ -91,7 +84,6 @@ const CardInformation = () => {
     }
   };
 
-  console.log("card Info", card);
   return (
     <Page className="flex flex-col flex-1 ">
       <Header showBackIcon title="Danh thiếp" />
@@ -104,7 +96,7 @@ const CardInformation = () => {
           setShowAction((prev) => !prev);
         }}
         style={{
-          backgroundImage: `${cardInfo?.theme ? `url('${env.VITE_WEB_URL_API + cardInfo?.theme?.background?.url}')` : `white`}`,
+          backgroundImage: `${cardInfo?.theme ? `url('${cardInfo?.theme?.background?.url}')` : `white`}`,
           backgroundSize: "contain",
           backgroundRepeat: "no-repeat",
           backgroundPosition: "center",
@@ -113,14 +105,11 @@ const CardInformation = () => {
       >
         {cardInfo?.documentId && (
           <div className="w-full h-full max-h-[700px] p-8 flex flex-col items-center">
-            <div className="w-32 h-32 rounded-full border-2 border-slate-400 mb-4">
+            <div className="w-32 h-32 rounded-full border-2 overflow-hidden border-slate-400 mb-4">
               {cardInfo?.avatar ? (
                 <img
-                  src={
-                    cardInfo?.avatar
-                      ? `${env.VITE_WEB_URL_API}${cardInfo?.avatar?.url}`
-                      : ""
-                  }
+                  className="w-full object-cover h-full"
+                  src={cardInfo?.avatar ? `${cardInfo?.avatar?.url}` : ""}
                 />
               ) : (
                 <CMSImage
@@ -290,11 +279,7 @@ const CardInformation = () => {
           <div className="w-16 h-16 rounded-full overflow-hidden border border-slate-400">
             {cardInfo?.avatar ? (
               <img
-                src={
-                  cardInfo?.avatar
-                    ? `${env.VITE_WEB_URL_API}${cardInfo?.avatar?.url}`
-                    : ""
-                }
+                src={cardInfo?.avatar ? `${cardInfo?.avatar?.url}` : ""}
                 className="w-full h-full object-cover"
               />
             ) : (

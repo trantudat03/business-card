@@ -6,9 +6,6 @@ import { useModalStore } from "store/modal";
 import { closeApp } from "zmp-sdk";
 import { Modal } from "zmp-ui";
 
-/**
- * The modal visibility can be controlled via modalStore.
- */
 const DynamicModal = () => {
   const isOpen = useBooleanStore((state) => state[DynamicModal.booleanKey]);
   const modal = useModalStore((state) => state.modal);
@@ -55,7 +52,9 @@ const DynamicModal = () => {
             }
           }}
         >
-          {modal?.isFatal ? "Thoát" : modal?.confirmButton?.text ?? "Xác nhận"}
+          {modal?.isFatal
+            ? "Thoát"
+            : (modal?.confirmButton?.text ?? "Xác nhận")}
         </CommonButton>
       )}
       {modal?.cancelButton && (

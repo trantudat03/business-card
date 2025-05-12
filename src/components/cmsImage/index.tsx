@@ -41,7 +41,7 @@ const CMSImage = ({
 
   return (
     <img
-      src={`${env.VITE_WEB_URL_API}${imageUrl?.[fieldName]?.url}`}
+      src={`${imageUrl?.[fieldName]?.url}`}
       alt={alt}
       className={className}
     />

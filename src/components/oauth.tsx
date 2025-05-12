@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useRecoilState } from "recoil";
-import { cardState, userState } from "state";
+import { useRecoilState, useSetRecoilState } from "recoil";
+import { appState, cardState, userState } from "state";
 import { EventName, events } from "zmp-sdk/apis";
 import request from "utils/request";
 // import { useGetUserInformation, useLoginWithZalo } from "hooks";
@@ -21,6 +21,7 @@ const Oauth = () => {
   const [user, setUser] = useRecoilState(userState);
   const [card, setCard] = useRecoilState(cardState);
   const UserQueryInfoCMS = hooks.usePOSTAPIUserQueryInfoCMS();
+  const setGlobal = useSetRecoilState(appState);
   const isHasPermission = async () => {
     const scopesRequest = ["scope.userPhonenumber", "scope.userInfo"];
     const scopes = await zaloService.requestGetSettingDevice();
@@ -58,7 +59,6 @@ const Oauth = () => {
       if (!isEmpty(ZaloAccessToken)) {
         UserInfoCMS = await UserQueryInfoCMS.post(UserInfoCMSParams);
       }
-      console.log("usercms", UserInfoCMS);
       _ = {
         cmsId: UserInfoCMS.user?.id,
         ZaloIdByApp: UserInfoCMS.user?.ZaloIdByApp,
@@ -80,6 +80,7 @@ const Oauth = () => {
   };
 
   const initOauth = async () => {
+    setGlobal((prev) => ({ ...prev, isLoading: true }));
     setUser((prev) => {
       return {
         ...prev,
@@ -130,6 +131,7 @@ const Oauth = () => {
         isLoading: false,
       };
     });
+    setGlobal((prev) => ({ ...prev, isLoading: false }));
   };
 
   useEffect(() => {
@@ -137,8 +139,6 @@ const Oauth = () => {
   }, []);
 
   useEffect(() => {
-    console.log("newUser", user);
-
     if (
       user.id &&
       card.documentId &&
@@ -162,7 +162,7 @@ const Oauth = () => {
     // UpdateProfile();
   }, [user?.userTokens?.cmsAccessToken]);
 
-  return <>{user?.isLoading && <GlobalLoading />}</>;
+  return <></>;
 };
 
 export default Oauth;

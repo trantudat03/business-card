@@ -64,10 +64,6 @@ const HomeApp = () => {
     refetchOnWindowFocus: false,
   });
 
-  if (data) {
-    console.log(data);
-  }
-
   return (
     <Page className="flex flex-col flex-1 bg-white " hideScrollbar>
       <Welcome />
