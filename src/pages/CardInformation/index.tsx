@@ -103,10 +103,11 @@ const CardInformation = () => {
           backgroundColor: cardInfo?.theme?.background?.url
             ? "transparent"
             : "white",
-          backgroundSize: "contain",
+          backgroundSize: "cover",
           backgroundRepeat: "no-repeat",
           backgroundPosition: "center",
           width: "100%",
+          height: "100%",
         }}
       >
         {cardInfo?.documentId && (
@@ -126,13 +127,23 @@ const CardInformation = () => {
             </div>
 
             <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold text-center">
+              <h2
+                className="text-2xl font-bold text-center"
+                style={{
+                  color: `${cardInfo?.theme ? `${cardInfo?.theme?.textColor}` : `black`}`,
+                }}
+              >
                 {cardInfo?.name}
               </h2>
               <p className="text-lg text-blue-600 dark:text-blue-400">
                 {handReturnValue(cardInfo?.position)}
               </p>
-              <div className="infoCardWrap  items-center justify-center text-gray-600 dark:text-gray-300">
+              <div
+                className="infoCardWrap  items-center justify-center text-gray-600 dark:text-gray-300"
+                style={{
+                  color: `${cardInfo?.theme ? `${cardInfo?.theme?.textColor}` : `black`}`,
+                }}
+              >
                 <BsBuildings size={22} />
                 <span>{handReturnValue(cardInfo?.company)}</span>
               </div>
@@ -140,7 +151,12 @@ const CardInformation = () => {
             {/* Slogan */}
             {cardInfo?.slogan && (
               <div className="text-center mb-6">
-                <p className="text-gray-600 italic text-base">
+                <p
+                  className=" italic text-base"
+                  style={{
+                    color: `${cardInfo?.theme ? `${cardInfo?.theme?.textColor}` : `#4B5563`}`,
+                  }}
+                >
                   "{cardInfo?.slogan}"
                 </p>
               </div>

@@ -9,7 +9,6 @@ const GlobalLoading = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    console.log("sjkdhfksd", global?.isLoading);
     if (global?.isLoading) {
       setIsLoading(true);
     } else {
